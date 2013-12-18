@@ -60,11 +60,14 @@ expression."
     (setq hdevtools//type-infos-index
           (mod (1+ hdevtools//type-infos-index)
                (length hdevtools//type-infos))))
-  (let ((tinfo (nth hdevtools//type-infos-index hdevtools//type-infos)))
-    (move-overlay hdevtools//type-info-overlay
-                  (hdevtools/type-info-start tinfo)
-                  (hdevtools/type-info-end tinfo))
-    (message "%s" (hdevtools/type-info-type tinfo))))
+
+  (if (not hdevtools//type-infos)
+      (message "Can't get type information; are you in an expression?")
+    (let ((tinfo (nth hdevtools//type-infos-index hdevtools//type-infos)))
+      (move-overlay hdevtools//type-info-overlay
+                    (hdevtools/type-info-start tinfo)
+                    (hdevtools/type-info-end tinfo))
+      (message "%s" (hdevtools/type-info-type tinfo)))))
 
 (defun hdevtools/get-type-infos ()
   "Get a list of type infos for identifiers containing point."
