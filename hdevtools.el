@@ -12,11 +12,62 @@
 (require 'cl-lib)
 (require 'dash)
 
+;; A type info contains a start, an end, and a string representation of the
+;; type.
 (cl-defstruct (hdevtools/type-info (:constructor hdevtools/make-type-info))
   start end type)
 
-(defun hdevtools/get-type-info ()
-  "Get all type information for identifiers containing point."
+(defvar hdevtools//type-infos nil
+  "Type infos currently being examined.
+
+Repeatedly invoking `hdevtools/show-type-info' cycles through all
+type infos for point; this caches the list to avoid calling
+hdevtools each time.  The cache should be cleared whenever the
+file is changed.")
+
+(defvar hdevtools//type-infos-index nil
+  "The index of the currently-highlighted type info, if any.
+
+This is initially 0 when `hdevtools/show-type-info' is invoked
+and increments by 1 each time, wrapping around to 0. nil
+indicates no type info is being displayed.")
+
+(defvar-local hdevtools//type-info-overlay nil
+  "Overlay for the current type info.")
+
+(defun hdevtools/show-type-info ()
+  "Show type info for the identifier at point.
+
+If already showing type info, show type info for the next largest
+expression."
+  (interactive)
+  ;; Initialize the type info overlay if necessary.
+  (if (not hdevtools//type-info-overlay)
+      (progn
+        (setq hdevtools//type-info-overlay (make-overlay 0 0))
+        (overlay-put hdevtools//type-info-overlay 'face 'region)))
+  ;; If point is outside the smallest overlay, restart.
+  (let ((smallest (car hdevtools//type-infos)))
+    (if (and smallest
+             (or (< (point) (hdevtools/type-info-start smallest))
+                 (> (point) (hdevtools/type-info-end smallest))))
+        (setq hdevtools//type-infos nil)))
+
+  ;; Load the type infos into the cache if necessary, else go to the next one.
+  (if (not hdevtools//type-infos)
+      (setq hdevtools//type-infos (hdevtools/get-type-infos)
+            hdevtools//type-infos-index 0)
+    (setq hdevtools//type-infos-index
+          (mod (1+ hdevtools//type-infos-index)
+               (length hdevtools//type-infos))))
+  (let ((tinfo (nth hdevtools//type-infos-index hdevtools//type-infos)))
+    (move-overlay hdevtools//type-info-overlay
+                  (hdevtools/type-info-start tinfo)
+                  (hdevtools/type-info-end tinfo))
+    (message "%s" (hdevtools/type-info-type tinfo))))
+
+(defun hdevtools/get-type-infos ()
+  "Get a list of type infos for identifiers containing point."
   (let* ((line-number (line-number-at-pos))
          ;; emacs numbers columns from 0, Haskell numbers columns from 1.
          (col-number (1+ (current-column)))
@@ -36,8 +87,8 @@ Assumes the current buffer does actually have type information."
   (with-current-buffer hdevtools-buffer
     (goto-char (point-min))
     (-filter 'identity (cl-loop collect (hdevtools//parse-single-type-info
-                                        haskell-buffer hdevtools-buffer)
-                               until (eobp) do (forward-line 1)))))
+                                         haskell-buffer hdevtools-buffer)
+                                until (eobp) do (forward-line 1)))))
 
 (defun hdevtools//parse-single-type-info (haskell-buffer hdevtools-buffer)
   "Parse a single line of type info for HASKELL-BUFFER out of HDEVTOOLS-BUFFER.
