@@ -17,7 +17,7 @@
 (cl-defstruct (hdevtools/type-info (:constructor hdevtools/make-type-info))
   start end type)
 
-(defvar hdevtools//type-infos nil
+(defvar-local hdevtools//type-infos nil
   "Type infos currently being examined.
 
 Repeatedly invoking `hdevtools/show-type-info' cycles through all
@@ -25,7 +25,7 @@ type infos for point; this caches the list to avoid calling
 hdevtools each time.  The cache should be cleared whenever the
 file is changed.")
 
-(defvar hdevtools//type-infos-index nil
+(defvar-local hdevtools//type-infos-index nil
   "The index of the currently-highlighted type info, if any.
 
 This is initially 0 when `hdevtools/show-type-info' is invoked
