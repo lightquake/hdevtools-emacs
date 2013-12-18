@@ -41,11 +41,8 @@ indicates no type info is being displayed.")
 If already showing type info, show type info for the next largest
 expression."
   (interactive)
-  ;; Initialize the type info overlay if necessary.
-  (if (not hdevtools//type-info-overlay)
-      (progn
-        (setq hdevtools//type-info-overlay (make-overlay 0 0))
-        (overlay-put hdevtools//type-info-overlay 'face 'region)))
+  ;; Initialize the type information state if necessary.
+  (if (not hdevtools//type-info-overlay) (hdevtools//init-type-info))
   ;; If point is outside the smallest overlay, restart.
   (let ((smallest (car hdevtools//type-infos)))
     (if (and smallest
@@ -62,12 +59,27 @@ expression."
                (length hdevtools//type-infos))))
 
   (if (not hdevtools//type-infos)
-      (message "Can't get type information; are you in an expression?")
+      (user-error "Can't get type information")
     (let ((tinfo (nth hdevtools//type-infos-index hdevtools//type-infos)))
       (move-overlay hdevtools//type-info-overlay
                     (hdevtools/type-info-start tinfo)
                     (hdevtools/type-info-end tinfo))
       (message "%s" (hdevtools/type-info-type tinfo)))))
+
+(defun hdevtools//init-type-info ()
+  "Perform type information-related initialization."
+  (setq hdevtools//type-info-overlay (make-overlay 0 0))
+  (overlay-put hdevtools//type-info-overlay 'face 'region)
+  (hdevtools//clear-type-info)
+  (add-hook 'after-change-functions 'hdevtools//clear-type-info))
+
+(defun hdevtools//clear-type-info (&optional beginning end length)
+  "Clear out any existing type info.
+
+BEGINNING, END, and LENGTH are not used."
+  (move-overlay hdevtools//type-info-overlay 0 0)
+  (setq hdevtools//type-infos nil)
+  (setq hdevtools//type-infos-index nil))
 
 (defun hdevtools/get-type-infos ()
   "Get a list of type infos for identifiers containing point."
