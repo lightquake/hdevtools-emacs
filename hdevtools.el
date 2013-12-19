@@ -100,16 +100,16 @@ expression."
   "Perform type information-related initialization."
   (setq hdevtools//type-info-overlay (make-overlay 0 0))
   (overlay-put hdevtools//type-info-overlay 'face 'region)
-  (hdevtools//clear-type-info)
-  (add-hook 'after-change-functions 'hdevtools//clear-type-info))
+  (hdevtools//clear-type-info))
 
 (defun hdevtools//clear-type-info (&optional beginning end length)
   "Clear out any existing type info.
 
 BEGINNING, END, and LENGTH are not used."
-  (move-overlay hdevtools//type-info-overlay 0 0)
-  (setq hdevtools//type-infos nil)
-  (setq hdevtools//type-infos-index nil))
+  (when (overlayp hdevtools//type-info-overlay)
+    (move-overlay hdevtools//type-info-overlay 0 0)
+    (setq hdevtools//type-infos nil)
+    (setq hdevtools//type-infos-index nil)))
 
 (defun hdevtools/get-type-infos ()
   "Get a list of type infos for identifiers containing point."
