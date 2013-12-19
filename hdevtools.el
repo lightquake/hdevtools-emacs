@@ -64,6 +64,7 @@ indicates no type info is being displayed.")
 
 ;;; Code to actually show type information.
 
+;;;###autoload
 (defun hdevtools/show-type-info ()
   "Show type info for the identifier at point.
 
