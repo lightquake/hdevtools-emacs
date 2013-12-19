@@ -1,6 +1,29 @@
-;; hdevtools --- hdevtools integration with emacs
+;;; hdevtools.el --- hdevtools integration with emacs
 
+;; Author: Kata <lightquake@amateurtopologist.com>
+;; URL: https://github.com/lightquake/hdevtools
+;; Version: 0.1
 ;; Package-Requires: ((cl-lib "0.3") (dash "2.3.0"))
+
+;; Copyright (c) 2013 Kata
+
+;; Permission is hereby granted, free of charge, to any person obtaining a copy
+;; of this software and associated documentation files (the "Software"), to deal
+;; in the Software without restriction, including without limitation the rights
+;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+;; copies of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
+
+;; The above copyright notice and this permission notice shall be included in
+;; all copies or substantial portions of the Software.
+
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+;; SOFTWARE.
 
 ;;; Commentary:
 
@@ -16,6 +39,9 @@
 ;; type.
 (cl-defstruct (hdevtools/type-info (:constructor hdevtools/make-type-info))
   start end type)
+
+
+;;; Variables used to hold type info-related things.
 
 (defvar-local hdevtools//type-infos nil
   "Type infos currently being examined.
@@ -34,6 +60,9 @@ indicates no type info is being displayed.")
 
 (defvar-local hdevtools//type-info-overlay nil
   "Overlay for the current type info.")
+
+
+;;; Code to actually show type information.
 
 (defun hdevtools/show-type-info ()
   "Show type info for the identifier at point.
