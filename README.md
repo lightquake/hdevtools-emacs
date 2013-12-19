@@ -6,4 +6,4 @@
 
 If you have Emacs >= 24, you can install `hdevtools-emacs` via the package `hdevtools` in [MELPA](http://melpa.milkbox.net/).
 
-To install manually, just put `hdevtools.el` somewhere on your `load-path` and `(require 'hdevtools)`.
+To install manually, just put `hdevtools.el` somewhere on your `load-path`; using `(require 'hdevtools)` is not necessary, but you can do it if you want.
