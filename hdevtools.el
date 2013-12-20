@@ -100,7 +100,8 @@ expression."
   "Perform type information-related initialization."
   (setq hdevtools//type-info-overlay (make-overlay 0 0))
   (overlay-put hdevtools//type-info-overlay 'face 'region)
-  (hdevtools//clear-type-info))
+  (hdevtools//clear-type-info)
+  (add-to-list 'after-change-functions 'hdevtools//clear-type-info))
 
 (defun hdevtools//clear-type-info (&optional beginning end length)
   "Clear out any existing type info.
@@ -120,7 +121,8 @@ BEGINNING, END, and LENGTH are not used."
          (hdevtools-buffer (get-buffer-create "*hdevtools*")))
     (with-current-buffer hdevtools-buffer
       (erase-buffer)
-      (call-process "hdevtools" nil t nil "type" file-name
+      (call-process "hdevtools" nil t nil "type" "-g" "-fdefer-type-errors"
+                    file-name
                     (number-to-string line-number)
                     (number-to-string col-number)))
     (hdevtools//parse-type-info (current-buffer) hdevtools-buffer)))
